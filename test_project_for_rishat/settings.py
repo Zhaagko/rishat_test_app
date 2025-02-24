@@ -1,10 +1,15 @@
+import os
+import environ
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-z6$n+c0m#&+s2-)1+rmx22=j1)f6!noh)2@r_fg9dtz6*@y8b4'
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-DEBUG = True
+SECRET_KEY = env.str("SECRET_KEY")
+
+DEBUG = env.bool("DEBUG", False)
 
 ALLOWED_HOSTS = []
 
@@ -83,3 +88,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
