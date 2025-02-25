@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ item.name }}</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>Товар: {{ item.name }}</h1>
+    <p>Описание: {{ item.description }}</p>
+    <p>Цента: {{ item.price }}</p>
+    <button id="buy-button">Купить</button>
+
+    <script>
+        document.getElementById("buy-button").addEventListener("click", function() {
+            var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+            fetch("/payments/buy/{{ item.id }}/", {method: "GET"})
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.session_id });
+            })
+            .catch(error => {
+                console.error("Error:", error)
+                alert("Ошибка при инициализации платежа")
+            });
+        });
+    </script>
+</body>
+</html>

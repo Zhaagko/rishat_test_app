@@ -38,7 +38,9 @@ ROOT_URLCONF = 'test_project_for_rishat.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / "templates"
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -90,3 +92,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = env.str("STRIPE_PUBLIC_KEY")
+STRIPE_DEFAULT_CURRENCY = env.str("STRIPE_DEFAULT_CURRENCY_CODE", "usd")
