@@ -41,3 +41,7 @@ def get_order_detail(order_id: int) -> OrderDetail:
         created_at=order.created_at,
         finished_at=order.finished_at
     )
+
+
+def finish_order(order_id: int):
+    Order.objects.filter(id=order_id).update(finished_at=timezone.now())

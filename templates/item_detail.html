@@ -11,6 +11,7 @@
     <input id="quantity" type="number" value="1" min="1">
     <button id="buy-button">Купить сейчас</button>
     <button id="add-to-cart-button">Добавить в корзину</button>
+    <button id="pay-for-cart-button">Оплатить корзину</button>
 
     <script>
         const itemId = "{{ item.id }}"
@@ -79,6 +80,39 @@
                 }
             })
         }
+        
+        async function buyItem() {
+            await fetch("/buy/{{ item.id }}", {method: "POST", "headers": {
+                "X-CSRFToken": csrfToken
+            }, "body": JSON.stringify({"quantity": document.getElementById("quantity").value})})
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.session_id });
+            })
+            .catch(error => {
+                console.error("Error:", error)
+                alert("Ошибка при подготовке платежа")
+            });
+        }
+
+        async function payForOrder() {
+            order_id = await getOrderCookie()
+            if (order_id == null || order_id == "") {
+                alert("Ошибка при подготовке заказа. Попробуйте добавить товар в корзину.")
+                return
+            }
+            await fetch(`/order/${order_id}/pay`, {method: "POST", "headers": {
+                "X-CSRFToken": csrfToken
+            }})
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.session_id });
+            })
+            .catch(error => {
+                console.error("Error:", error)
+                alert("Ошибка при подготовке платежа")
+            });
+        }
 
         function getCookieValue(name) {
             const nameEQ = name + "=";
@@ -91,20 +125,9 @@
             return null;
         }
 
-        document.getElementById("buy-button").addEventListener("click", function() {
-            fetch("/buy/{{ item.id }}", {method: "POST", "headers": {
-                "X-CSRFToken": csrfToken
-            }, "body": JSON.stringify({"quantity": document.getElementById("quantity").value})})
-            .then(response => response.json())
-            .then(session => {
-                return stripe.redirectToCheckout({ sessionId: session.session_id });
-            })
-            .catch(error => {
-                console.error("Error:", error)
-                alert("Ошибка при подготовке платежа")
-            });
-        });
+        document.getElementById("buy-button").addEventListener("click", buyItem);
         document.getElementById("add-to-cart-button").addEventListener("click", addItemToCart)
+        document.getElementById("pay-for-cart-button").addEventListener("click", payForOrder)
     </script>
 </body>
 </html>

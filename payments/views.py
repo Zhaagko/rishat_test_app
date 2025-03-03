@@ -54,6 +54,9 @@ def add_item_to_order(request, order_id: int, *args, **kwargs):
 
 
 def payment_success(request, *args, **kwargs):
+    order_id = request.GET.get("order_id")
+    if order_id is not None:
+        orders.finish_order(order_id=int(order_id))
     return HttpResponse("""<h3>Заказ успешно оплачен</h3>""")
 
 
@@ -104,6 +107,7 @@ def buy_item(request, item_id: int):
 def pay_for_order(request, order_id: int, *args, **kwargs):
     order = get_object_or_404(Order, id=order_id)
     success_url, cancel_url = get_payment_redirect_urls(request)
+    success_url += f"?order_id={order.id}"
     session_kwargs = dict(
         payment_method_types=["card"],
             line_items=get_line_items_for_order(order),
